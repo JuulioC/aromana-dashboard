@@ -1,12 +1,14 @@
 
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, Save, MessageSquare, Upload, Image as ImageIcon, Bell } from 'lucide-react';
+import { ArrowLeft, Save, MessageSquare, Upload, Image as ImageIcon, Bell, User } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
+import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
+import { Checkbox } from '@/components/ui/checkbox';
 import { useConfiguracoes } from '@/hooks/useConfiguracoes';
 import { toast } from '@/hooks/use-toast';
 
@@ -19,6 +21,9 @@ const Configuracoes = () => {
   const [alertaEmail, setAlertaEmail] = useState(true);
   const [alertaSms, setAlertaSms] = useState(false);
   const [alertaWhatsApp, setAlertaWhatsApp] = useState(true);
+  const [emailUsuario, setEmailUsuario] = useState('');
+  const [celularUsuario, setCelularUsuario] = useState('');
+  const [temWhatsApp, setTemWhatsApp] = useState(true);
 
   useEffect(() => {
     if (configuracoes) {
@@ -28,6 +33,9 @@ const Configuracoes = () => {
       setAlertaEmail(configuracoes.alertaEmail ?? true);
       setAlertaSms(configuracoes.alertaSms ?? false);
       setAlertaWhatsApp(configuracoes.alertaWhatsApp ?? true);
+      setEmailUsuario(configuracoes.emailUsuario || '');
+      setCelularUsuario(configuracoes.celularUsuario || '');
+      setTemWhatsApp(configuracoes.temWhatsApp ?? true);
     }
   }, [configuracoes]);
 
@@ -58,7 +66,10 @@ const Configuracoes = () => {
             urlImagem: novaUrlImagem,
             alertaEmail,
             alertaSms,
-            alertaWhatsApp
+            alertaWhatsApp,
+            emailUsuario,
+            celularUsuario,
+            temWhatsApp
           });
 
           toast({
@@ -73,7 +84,10 @@ const Configuracoes = () => {
           urlImagem,
           alertaEmail,
           alertaSms,
-          alertaWhatsApp
+          alertaWhatsApp,
+          emailUsuario,
+          celularUsuario,
+          temWhatsApp
         });
 
         toast({
@@ -114,6 +128,70 @@ const Configuracoes = () => {
 
       <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="space-y-6">
+          {/* Dados do Usuário */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center space-x-2">
+                <User className="h-5 w-5 text-purple-500" />
+                <span>Seus Dados de Contato</span>
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div>
+                <Label className="text-base font-medium mb-4 block">
+                  Configure seus dados para receber as notificações
+                </Label>
+                
+                <div className="space-y-4">
+                  <div>
+                    <Label htmlFor="email-usuario" className="text-sm font-medium">
+                      Email
+                    </Label>
+                    <Input
+                      id="email-usuario"
+                      type="email"
+                      placeholder="seu@email.com"
+                      value={emailUsuario}
+                      onChange={(e) => setEmailUsuario(e.target.value)}
+                      className="mt-1"
+                    />
+                    <p className="text-xs text-gray-500 mt-1">
+                      Email onde você receberá os alertas de aniversariantes
+                    </p>
+                  </div>
+
+                  <div>
+                    <Label htmlFor="celular-usuario" className="text-sm font-medium">
+                      Número do Celular
+                    </Label>
+                    <Input
+                      id="celular-usuario"
+                      type="tel"
+                      placeholder="(11) 99999-9999"
+                      value={celularUsuario}
+                      onChange={(e) => setCelularUsuario(e.target.value)}
+                      className="mt-1"
+                    />
+                    <p className="text-xs text-gray-500 mt-1">
+                      Número para receber SMS e WhatsApp
+                    </p>
+                  </div>
+
+                  <div className="flex items-center space-x-2">
+                    <Checkbox
+                      id="tem-whatsapp"
+                      checked={temWhatsApp}
+                      onCheckedChange={setTemWhatsApp}
+                    />
+                    <Label htmlFor="tem-whatsapp" className="text-sm font-medium">
+                      Este número tem WhatsApp
+                    </Label>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
           {/* Configurações de Alerta */}
           <Card>
             <CardHeader>
@@ -146,6 +224,7 @@ const Configuracoes = () => {
                       id="alerta-email"
                       checked={alertaEmail}
                       onCheckedChange={setAlertaEmail}
+                      disabled={!emailUsuario}
                     />
                   </div>
 
@@ -163,6 +242,7 @@ const Configuracoes = () => {
                       id="alerta-sms"
                       checked={alertaSms}
                       onCheckedChange={setAlertaSms}
+                      disabled={!celularUsuario}
                     />
                   </div>
 
@@ -180,9 +260,18 @@ const Configuracoes = () => {
                       id="alerta-whatsapp"
                       checked={alertaWhatsApp}
                       onCheckedChange={setAlertaWhatsApp}
+                      disabled={!celularUsuario || !temWhatsApp}
                     />
                   </div>
                 </div>
+
+                {(!emailUsuario || !celularUsuario) && (
+                  <div className="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+                    <p className="text-sm text-yellow-800">
+                      💡 Configure seus dados de contato acima para habilitar as opções de notificação
+                    </p>
+                  </div>
+                )}
               </div>
             </CardContent>
           </Card>

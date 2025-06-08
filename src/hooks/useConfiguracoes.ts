@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 
 export interface Configuracoes {
@@ -7,6 +6,10 @@ export interface Configuracoes {
   alertaEmail: boolean;
   alertaSms: boolean;
   alertaWhatsApp: boolean;
+  // Dados do usuário para receber alertas
+  emailUsuario: string;
+  celularUsuario: string;
+  temWhatsApp: boolean;
 }
 
 // Configurações padrão
@@ -15,7 +18,10 @@ const configuracoesDefault: Configuracoes = {
   urlImagem: "",
   alertaEmail: true,
   alertaSms: false,
-  alertaWhatsApp: true
+  alertaWhatsApp: true,
+  emailUsuario: "",
+  celularUsuario: "",
+  temWhatsApp: true
 };
 
 export const useConfiguracoes = () => {

@@ -1,4 +1,3 @@
-
 import React, { useState, useMemo } from 'react';
 import { format, isToday, isSameDay, parseISO } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
@@ -8,14 +7,17 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useAniversariantes } from '@/hooks/useAniversariantes';
 import { useConfiguracoes } from '@/hooks/useConfiguracoes';
+import { useAlertaAniversariantes } from '@/hooks/useAlertaAniversariantes';
 import AniversarianteCard from '@/components/AniversarianteCard';
 import CalendarioWidget from '@/components/CalendarioWidget';
+import AlertaAniversariantes from '@/components/AlertaAniversariantes';
 import { toast } from '@/hooks/use-toast';
 
 const Dashboard = () => {
   const [dataSelecionada, setDataSelecionada] = useState<Date>(new Date());
   const { aniversariantes, isLoading } = useAniversariantes();
   const { configuracoes } = useConfiguracoes();
+  const { alertaDismissed, dismissAlert } = useAlertaAniversariantes();
 
   const aniversariantesFiltrados = useMemo(() => {
     if (!aniversariantes) return [];
@@ -103,6 +105,14 @@ const Dashboard = () => {
       </header>
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Alerta de Aniversariantes */}
+        <AlertaAniversariantes
+          aniversariantes={aniversariantesHoje}
+          onEnviarParaTodos={enviarMensagemParaTodos}
+          onDismiss={dismissAlert}
+          isVisible={!alertaDismissed && aniversariantesHoje.length > 0}
+        />
+
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           <Card className="bg-gradient-to-r from-blue-500 to-blue-600 text-white border-0">

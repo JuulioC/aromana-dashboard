@@ -1,11 +1,12 @@
 
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, Save, MessageSquare, Upload, Image as ImageIcon } from 'lucide-react';
+import { ArrowLeft, Save, MessageSquare, Upload, Image as ImageIcon, Bell } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
+import { Switch } from '@/components/ui/switch';
 import { useConfiguracoes } from '@/hooks/useConfiguracoes';
 import { toast } from '@/hooks/use-toast';
 
@@ -15,12 +16,18 @@ const Configuracoes = () => {
   const [urlImagem, setUrlImagem] = useState('');
   const [novaImagem, setNovaImagem] = useState<File | null>(null);
   const [previewImagem, setPreviewImagem] = useState('');
+  const [alertaEmail, setAlertaEmail] = useState(true);
+  const [alertaSms, setAlertaSms] = useState(false);
+  const [alertaWhatsApp, setAlertaWhatsApp] = useState(true);
 
   useEffect(() => {
     if (configuracoes) {
       setMensagemPadrao(configuracoes.mensagemPadrao || 'Parabéns [NOME]! Desejamos um feliz aniversário! 🎉🎂');
       setUrlImagem(configuracoes.urlImagem || '');
       setPreviewImagem(configuracoes.urlImagem || '');
+      setAlertaEmail(configuracoes.alertaEmail ?? true);
+      setAlertaSms(configuracoes.alertaSms ?? false);
+      setAlertaWhatsApp(configuracoes.alertaWhatsApp ?? true);
     }
   }, [configuracoes]);
 
@@ -48,7 +55,10 @@ const Configuracoes = () => {
           
           await salvarConfiguracoes({
             mensagemPadrao,
-            urlImagem: novaUrlImagem
+            urlImagem: novaUrlImagem,
+            alertaEmail,
+            alertaSms,
+            alertaWhatsApp
           });
 
           toast({
@@ -60,7 +70,10 @@ const Configuracoes = () => {
       } else {
         await salvarConfiguracoes({
           mensagemPadrao,
-          urlImagem
+          urlImagem,
+          alertaEmail,
+          alertaSms,
+          alertaWhatsApp
         });
 
         toast({
@@ -101,6 +114,79 @@ const Configuracoes = () => {
 
       <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="space-y-6">
+          {/* Configurações de Alerta */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center space-x-2">
+                <Bell className="h-5 w-5 text-orange-500" />
+                <span>Configurações de Alerta</span>
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div>
+                <Label className="text-base font-medium">
+                  Como você deseja receber alertas sobre aniversariantes?
+                </Label>
+                <p className="text-sm text-gray-500 mb-4">
+                  Selecione as formas de notificação que você prefere receber
+                </p>
+                
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between p-4 border rounded-lg">
+                    <div className="flex items-center space-x-3">
+                      <div className="bg-blue-100 p-2 rounded-full">
+                        <MessageSquare className="h-4 w-4 text-blue-600" />
+                      </div>
+                      <div>
+                        <Label htmlFor="alerta-email" className="font-medium">Email</Label>
+                        <p className="text-sm text-gray-500">Receber notificações por email</p>
+                      </div>
+                    </div>
+                    <Switch
+                      id="alerta-email"
+                      checked={alertaEmail}
+                      onCheckedChange={setAlertaEmail}
+                    />
+                  </div>
+
+                  <div className="flex items-center justify-between p-4 border rounded-lg">
+                    <div className="flex items-center space-x-3">
+                      <div className="bg-green-100 p-2 rounded-full">
+                        <MessageSquare className="h-4 w-4 text-green-600" />
+                      </div>
+                      <div>
+                        <Label htmlFor="alerta-sms" className="font-medium">SMS</Label>
+                        <p className="text-sm text-gray-500">Receber notificações por SMS</p>
+                      </div>
+                    </div>
+                    <Switch
+                      id="alerta-sms"
+                      checked={alertaSms}
+                      onCheckedChange={setAlertaSms}
+                    />
+                  </div>
+
+                  <div className="flex items-center justify-between p-4 border rounded-lg">
+                    <div className="flex items-center space-x-3">
+                      <div className="bg-purple-100 p-2 rounded-full">
+                        <MessageSquare className="h-4 w-4 text-purple-600" />
+                      </div>
+                      <div>
+                        <Label htmlFor="alerta-whatsapp" className="font-medium">WhatsApp</Label>
+                        <p className="text-sm text-gray-500">Receber notificações via WhatsApp</p>
+                      </div>
+                    </div>
+                    <Switch
+                      id="alerta-whatsapp"
+                      checked={alertaWhatsApp}
+                      onCheckedChange={setAlertaWhatsApp}
+                    />
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
           {/* Mensagem Padrão */}
           <Card>
             <CardHeader>

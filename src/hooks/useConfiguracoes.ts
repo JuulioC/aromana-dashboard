@@ -4,12 +4,18 @@ import { useState, useEffect } from 'react';
 export interface Configuracoes {
   mensagemPadrao: string;
   urlImagem: string;
+  alertaEmail: boolean;
+  alertaSms: boolean;
+  alertaWhatsApp: boolean;
 }
 
 // Configurações padrão
 const configuracoesDefault: Configuracoes = {
   mensagemPadrao: "Parabéns [NOME]! Desejamos um feliz aniversário! 🎉🎂 Que este novo ano de vida seja repleto de alegrias, conquistas e momentos especiais!",
-  urlImagem: ""
+  urlImagem: "",
+  alertaEmail: true,
+  alertaSms: false,
+  alertaWhatsApp: true
 };
 
 export const useConfiguracoes = () => {
@@ -24,7 +30,9 @@ export const useConfiguracoes = () => {
       try {
         const configSalvas = localStorage.getItem('gestorAniversarios_configuracoes');
         if (configSalvas) {
-          setConfiguracoes(JSON.parse(configSalvas));
+          const configParsed = JSON.parse(configSalvas);
+          // Merge com configurações padrão para garantir que novas propriedades existam
+          setConfiguracoes({ ...configuracoesDefault, ...configParsed });
         } else {
           setConfiguracoes(configuracoesDefault);
         }

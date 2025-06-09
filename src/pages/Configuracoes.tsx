@@ -1,8 +1,8 @@
-
 import React, { useState, useEffect } from 'react';
 import { Save } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useConfiguracoes } from '@/hooks/useConfiguracoes';
 import { toast } from '@/hooks/use-toast';
 import ConfiguracoesHeader from '@/components/configuracoes/ConfiguracoesHeader';
@@ -10,6 +10,7 @@ import ConfiguracoesUsuarios from '@/components/configuracoes/ConfiguracoesUsuar
 import ConfiguracoesAlertas from '@/components/configuracoes/ConfiguracoesAlertas';
 import ConfiguracoesMensagem from '@/components/configuracoes/ConfiguracoesMensagem';
 import ConfiguracoesImagem from '@/components/configuracoes/ConfiguracoesImagem';
+import ConfiguracoesGoogle from '@/components/configuracoes/ConfiguracoesGoogle';
 
 const Configuracoes = () => {
   const { 
@@ -108,35 +109,55 @@ const Configuracoes = () => {
       <ConfiguracoesHeader />
 
       <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="space-y-6">
-          <ConfiguracoesUsuarios
-            usuarios={configuracoes?.usuarios || []}
-            onAdicionarUsuario={adicionarUsuario}
-            onEditarUsuario={editarUsuario}
-            onRemoverUsuario={removerUsuario}
-          />
+        <Tabs defaultValue="usuarios" className="space-y-6">
+          <TabsList className="grid w-full grid-cols-5">
+            <TabsTrigger value="usuarios">Usuários</TabsTrigger>
+            <TabsTrigger value="google">Google</TabsTrigger>
+            <TabsTrigger value="alertas">Alertas</TabsTrigger>
+            <TabsTrigger value="mensagem">Mensagem</TabsTrigger>
+            <TabsTrigger value="imagem">Imagem</TabsTrigger>
+          </TabsList>
 
-          <ConfiguracoesAlertas
-            alertaEmail={alertaEmail}
-            setAlertaEmail={setAlertaEmail}
-            alertaSms={alertaSms}
-            setAlertaSms={setAlertaSms}
-            alertaWhatsApp={alertaWhatsApp}
-            setAlertaWhatsApp={setAlertaWhatsApp}
-            emailUsuario={temUsuariosComEmail ? 'configurado' : ''}
-            celularUsuario={temUsuariosComCelular ? 'configurado' : ''}
-            temWhatsApp={temUsuariosComWhatsApp}
-          />
+          <TabsContent value="usuarios">
+            <ConfiguracoesUsuarios
+              usuarios={configuracoes?.usuarios || []}
+              onAdicionarUsuario={adicionarUsuario}
+              onEditarUsuario={editarUsuario}
+              onRemoverUsuario={removerUsuario}
+            />
+          </TabsContent>
 
-          <ConfiguracoesMensagem
-            mensagemPadrao={mensagemPadrao}
-            setMensagemPadrao={setMensagemPadrao}
-          />
+          <TabsContent value="google">
+            <ConfiguracoesGoogle />
+          </TabsContent>
 
-          <ConfiguracoesImagem
-            previewImagem={previewImagem}
-            onImagemUpload={handleImagemUpload}
-          />
+          <TabsContent value="alertas">
+            <ConfiguracoesAlertas
+              alertaEmail={alertaEmail}
+              setAlertaEmail={setAlertaEmail}
+              alertaSms={alertaSms}
+              setAlertaSms={setAlertaSms}
+              alertaWhatsApp={alertaWhatsApp}
+              setAlertaWhatsApp={setAlertaWhatsApp}
+              emailUsuario={temUsuariosComEmail ? 'configurado' : ''}
+              celularUsuario={temUsuariosComCelular ? 'configurado' : ''}
+              temWhatsApp={temUsuariosComWhatsApp}
+            />
+          </TabsContent>
+
+          <TabsContent value="mensagem">
+            <ConfiguracoesMensagem
+              mensagemPadrao={mensagemPadrao}
+              setMensagemPadrao={setMensagemPadrao}
+            />
+          </TabsContent>
+
+          <TabsContent value="imagem">
+            <ConfiguracoesImagem
+              previewImagem={previewImagem}
+              onImagemUpload={handleImagemUpload}
+            />
+          </TabsContent>
 
           {!temUsuariosAtivos && (
             <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
@@ -158,7 +179,7 @@ const Configuracoes = () => {
               </Button>
             </CardContent>
           </Card>
-        </div>
+        </Tabs>
       </main>
     </div>
   );

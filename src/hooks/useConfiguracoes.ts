@@ -1,4 +1,14 @@
+
 import { useState, useEffect } from 'react';
+
+export interface Usuario {
+  id: string;
+  nome: string;
+  email: string;
+  celular: string;
+  temWhatsApp: boolean;
+  ativo: boolean;
+}
 
 export interface Configuracoes {
   mensagemPadrao: string;
@@ -6,10 +16,7 @@ export interface Configuracoes {
   alertaEmail: boolean;
   alertaSms: boolean;
   alertaWhatsApp: boolean;
-  // Dados do usuário para receber alertas
-  emailUsuario: string;
-  celularUsuario: string;
-  temWhatsApp: boolean;
+  usuarios: Usuario[];
 }
 
 // Configurações padrão
@@ -19,9 +26,7 @@ const configuracoesDefault: Configuracoes = {
   alertaEmail: true,
   alertaSms: false,
   alertaWhatsApp: true,
-  emailUsuario: "",
-  celularUsuario: "",
-  temWhatsApp: true
+  usuarios: []
 };
 
 export const useConfiguracoes = () => {
@@ -69,9 +74,41 @@ export const useConfiguracoes = () => {
     }
   };
 
+  const adicionarUsuario = async (usuario: Omit<Usuario, 'id'>) => {
+    if (!configuracoes) return;
+    
+    const novoUsuario: Usuario = {
+      ...usuario,
+      id: Date.now().toString()
+    };
+
+    const novosUsuarios = [...configuracoes.usuarios, novoUsuario];
+    await salvarConfiguracoes({ usuarios: novosUsuarios });
+  };
+
+  const editarUsuario = async (id: string, dadosAtualizados: Partial<Usuario>) => {
+    if (!configuracoes) return;
+    
+    const novosUsuarios = configuracoes.usuarios.map(user => 
+      user.id === id ? { ...user, ...dadosAtualizados } : user
+    );
+    
+    await salvarConfiguracoes({ usuarios: novosUsuarios });
+  };
+
+  const removerUsuario = async (id: string) => {
+    if (!configuracoes) return;
+    
+    const novosUsuarios = configuracoes.usuarios.filter(user => user.id !== id);
+    await salvarConfiguracoes({ usuarios: novosUsuarios });
+  };
+
   return {
     configuracoes,
     isLoading,
-    salvarConfiguracoes
+    salvarConfiguracoes,
+    adicionarUsuario,
+    editarUsuario,
+    removerUsuario
   };
 };

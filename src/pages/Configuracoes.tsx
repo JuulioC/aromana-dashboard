@@ -6,13 +6,21 @@ import { Card, CardContent } from '@/components/ui/card';
 import { useConfiguracoes } from '@/hooks/useConfiguracoes';
 import { toast } from '@/hooks/use-toast';
 import ConfiguracoesHeader from '@/components/configuracoes/ConfiguracoesHeader';
-import ConfiguracoesDadosUsuario from '@/components/configuracoes/ConfiguracoesDadosUsuario';
+import ConfiguracoesUsuarios from '@/components/configuracoes/ConfiguracoesUsuarios';
 import ConfiguracoesAlertas from '@/components/configuracoes/ConfiguracoesAlertas';
 import ConfiguracoesMensagem from '@/components/configuracoes/ConfiguracoesMensagem';
 import ConfiguracoesImagem from '@/components/configuracoes/ConfiguracoesImagem';
 
 const Configuracoes = () => {
-  const { configuracoes, salvarConfiguracoes, isLoading } = useConfiguracoes();
+  const { 
+    configuracoes, 
+    salvarConfiguracoes, 
+    isLoading,
+    adicionarUsuario,
+    editarUsuario,
+    removerUsuario
+  } = useConfiguracoes();
+  
   const [mensagemPadrao, setMensagemPadrao] = useState('');
   const [urlImagem, setUrlImagem] = useState('');
   const [novaImagem, setNovaImagem] = useState<File | null>(null);
@@ -20,9 +28,6 @@ const Configuracoes = () => {
   const [alertaEmail, setAlertaEmail] = useState(true);
   const [alertaSms, setAlertaSms] = useState(false);
   const [alertaWhatsApp, setAlertaWhatsApp] = useState(true);
-  const [emailUsuario, setEmailUsuario] = useState('');
-  const [celularUsuario, setCelularUsuario] = useState('');
-  const [temWhatsApp, setTemWhatsApp] = useState(true);
 
   useEffect(() => {
     if (configuracoes) {
@@ -32,9 +37,6 @@ const Configuracoes = () => {
       setAlertaEmail(configuracoes.alertaEmail ?? true);
       setAlertaSms(configuracoes.alertaSms ?? false);
       setAlertaWhatsApp(configuracoes.alertaWhatsApp ?? true);
-      setEmailUsuario(configuracoes.emailUsuario || '');
-      setCelularUsuario(configuracoes.celularUsuario || '');
-      setTemWhatsApp(configuracoes.temWhatsApp ?? true);
     }
   }, [configuracoes]);
 
@@ -64,10 +66,7 @@ const Configuracoes = () => {
             urlImagem: novaUrlImagem,
             alertaEmail,
             alertaSms,
-            alertaWhatsApp,
-            emailUsuario,
-            celularUsuario,
-            temWhatsApp
+            alertaWhatsApp
           });
 
           toast({
@@ -82,10 +81,7 @@ const Configuracoes = () => {
           urlImagem,
           alertaEmail,
           alertaSms,
-          alertaWhatsApp,
-          emailUsuario,
-          celularUsuario,
-          temWhatsApp
+          alertaWhatsApp
         });
 
         toast({
@@ -102,19 +98,22 @@ const Configuracoes = () => {
     }
   };
 
+  const temUsuariosAtivos = configuracoes?.usuarios?.some(user => user.ativo) || false;
+  const temUsuariosComEmail = configuracoes?.usuarios?.some(user => user.ativo && user.email) || false;
+  const temUsuariosComCelular = configuracoes?.usuarios?.some(user => user.ativo && user.celular) || false;
+  const temUsuariosComWhatsApp = configuracoes?.usuarios?.some(user => user.ativo && user.celular && user.temWhatsApp) || false;
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-green-50">
       <ConfiguracoesHeader />
 
       <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="space-y-6">
-          <ConfiguracoesDadosUsuario
-            emailUsuario={emailUsuario}
-            setEmailUsuario={setEmailUsuario}
-            celularUsuario={celularUsuario}
-            setCelularUsuario={setCelularUsuario}
-            temWhatsApp={temWhatsApp}
-            setTemWhatsApp={setTemWhatsApp}
+          <ConfiguracoesUsuarios
+            usuarios={configuracoes?.usuarios || []}
+            onAdicionarUsuario={adicionarUsuario}
+            onEditarUsuario={editarUsuario}
+            onRemoverUsuario={removerUsuario}
           />
 
           <ConfiguracoesAlertas
@@ -124,9 +123,9 @@ const Configuracoes = () => {
             setAlertaSms={setAlertaSms}
             alertaWhatsApp={alertaWhatsApp}
             setAlertaWhatsApp={setAlertaWhatsApp}
-            emailUsuario={emailUsuario}
-            celularUsuario={celularUsuario}
-            temWhatsApp={temWhatsApp}
+            emailUsuario={temUsuariosComEmail ? 'configurado' : ''}
+            celularUsuario={temUsuariosComCelular ? 'configurado' : ''}
+            temWhatsApp={temUsuariosComWhatsApp}
           />
 
           <ConfiguracoesMensagem
@@ -138,6 +137,14 @@ const Configuracoes = () => {
             previewImagem={previewImagem}
             onImagemUpload={handleImagemUpload}
           />
+
+          {!temUsuariosAtivos && (
+            <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+              <p className="text-sm text-yellow-800">
+                💡 Adicione pelo menos um usuário ativo para habilitar as funcionalidades de envio de mensagens.
+              </p>
+            </div>
+          )}
 
           <Card>
             <CardContent className="pt-6">

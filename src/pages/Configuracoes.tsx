@@ -181,7 +181,7 @@ const Configuracoes = () => {
                     <Checkbox
                       id="tem-whatsapp"
                       checked={temWhatsApp}
-                      onCheckedChange={setTemWhatsApp}
+                      onCheckedChange={(checked) => setTemWhatsApp(checked === true)}
                     />
                     <Label htmlFor="tem-whatsapp" className="text-sm font-medium">
                       Este número tem WhatsApp

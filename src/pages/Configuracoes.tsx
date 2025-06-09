@@ -1,16 +1,15 @@
 
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, Save, MessageSquare, Upload, Image as ImageIcon, Bell, User } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Save } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Textarea } from '@/components/ui/textarea';
-import { Label } from '@/components/ui/label';
-import { Input } from '@/components/ui/input';
-import { Switch } from '@/components/ui/switch';
-import { Checkbox } from '@/components/ui/checkbox';
+import { Card, CardContent } from '@/components/ui/card';
 import { useConfiguracoes } from '@/hooks/useConfiguracoes';
 import { toast } from '@/hooks/use-toast';
+import ConfiguracoesHeader from '@/components/configuracoes/ConfiguracoesHeader';
+import ConfiguracoesDadosUsuario from '@/components/configuracoes/ConfiguracoesDadosUsuario';
+import ConfiguracoesAlertas from '@/components/configuracoes/ConfiguracoesAlertas';
+import ConfiguracoesMensagem from '@/components/configuracoes/ConfiguracoesMensagem';
+import ConfiguracoesImagem from '@/components/configuracoes/ConfiguracoesImagem';
 
 const Configuracoes = () => {
   const { configuracoes, salvarConfiguracoes, isLoading } = useConfiguracoes();
@@ -56,7 +55,6 @@ const Configuracoes = () => {
       let novaUrlImagem = urlImagem;
       
       if (novaImagem) {
-        // Simulação de upload - em uma implementação real, você faria upload para um serviço
         const reader = new FileReader();
         reader.onload = async (e) => {
           novaUrlImagem = e.target?.result as string;
@@ -106,262 +104,41 @@ const Configuracoes = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-green-50">
-      {/* Header */}
-      <header className="bg-white border-b border-gray-200 shadow-sm">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            <div className="flex items-center space-x-3">
-              <Link to="/">
-                <Button variant="ghost" size="sm" className="flex items-center space-x-2">
-                  <ArrowLeft className="h-4 w-4" />
-                  <span>Voltar</span>
-                </Button>
-              </Link>
-              <div className="bg-gradient-to-r from-blue-500 to-green-500 p-2 rounded-lg">
-                <MessageSquare className="h-6 w-6 text-white" />
-              </div>
-              <h1 className="text-xl font-bold text-gray-900">Configurações</h1>
-            </div>
-          </div>
-        </div>
-      </header>
+      <ConfiguracoesHeader />
 
       <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="space-y-6">
-          {/* Dados do Usuário */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center space-x-2">
-                <User className="h-5 w-5 text-purple-500" />
-                <span>Seus Dados de Contato</span>
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              <div>
-                <Label className="text-base font-medium mb-4 block">
-                  Configure seus dados para receber as notificações
-                </Label>
-                
-                <div className="space-y-4">
-                  <div>
-                    <Label htmlFor="email-usuario" className="text-sm font-medium">
-                      Email
-                    </Label>
-                    <Input
-                      id="email-usuario"
-                      type="email"
-                      placeholder="seu@email.com"
-                      value={emailUsuario}
-                      onChange={(e) => setEmailUsuario(e.target.value)}
-                      className="mt-1"
-                    />
-                    <p className="text-xs text-gray-500 mt-1">
-                      Email onde você receberá os alertas de aniversariantes
-                    </p>
-                  </div>
+          <ConfiguracoesDadosUsuario
+            emailUsuario={emailUsuario}
+            setEmailUsuario={setEmailUsuario}
+            celularUsuario={celularUsuario}
+            setCelularUsuario={setCelularUsuario}
+            temWhatsApp={temWhatsApp}
+            setTemWhatsApp={setTemWhatsApp}
+          />
 
-                  <div>
-                    <Label htmlFor="celular-usuario" className="text-sm font-medium">
-                      Número do Celular
-                    </Label>
-                    <Input
-                      id="celular-usuario"
-                      type="tel"
-                      placeholder="(11) 99999-9999"
-                      value={celularUsuario}
-                      onChange={(e) => setCelularUsuario(e.target.value)}
-                      className="mt-1"
-                    />
-                    <p className="text-xs text-gray-500 mt-1">
-                      Número para receber SMS e WhatsApp
-                    </p>
-                  </div>
+          <ConfiguracoesAlertas
+            alertaEmail={alertaEmail}
+            setAlertaEmail={setAlertaEmail}
+            alertaSms={alertaSms}
+            setAlertaSms={setAlertaSms}
+            alertaWhatsApp={alertaWhatsApp}
+            setAlertaWhatsApp={setAlertaWhatsApp}
+            emailUsuario={emailUsuario}
+            celularUsuario={celularUsuario}
+            temWhatsApp={temWhatsApp}
+          />
 
-                  <div className="flex items-center space-x-2">
-                    <Checkbox
-                      id="tem-whatsapp"
-                      checked={temWhatsApp}
-                      onCheckedChange={(checked) => setTemWhatsApp(checked === true)}
-                    />
-                    <Label htmlFor="tem-whatsapp" className="text-sm font-medium">
-                      Este número tem WhatsApp
-                    </Label>
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+          <ConfiguracoesMensagem
+            mensagemPadrao={mensagemPadrao}
+            setMensagemPadrao={setMensagemPadrao}
+          />
 
-          {/* Configurações de Alerta */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center space-x-2">
-                <Bell className="h-5 w-5 text-orange-500" />
-                <span>Configurações de Alerta</span>
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              <div>
-                <Label className="text-base font-medium">
-                  Como você deseja receber alertas sobre aniversariantes?
-                </Label>
-                <p className="text-sm text-gray-500 mb-4">
-                  Selecione as formas de notificação que você prefere receber
-                </p>
-                
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between p-4 border rounded-lg">
-                    <div className="flex items-center space-x-3">
-                      <div className="bg-blue-100 p-2 rounded-full">
-                        <MessageSquare className="h-4 w-4 text-blue-600" />
-                      </div>
-                      <div>
-                        <Label htmlFor="alerta-email" className="font-medium">Email</Label>
-                        <p className="text-sm text-gray-500">Receber notificações por email</p>
-                      </div>
-                    </div>
-                    <Switch
-                      id="alerta-email"
-                      checked={alertaEmail}
-                      onCheckedChange={setAlertaEmail}
-                      disabled={!emailUsuario}
-                    />
-                  </div>
+          <ConfiguracoesImagem
+            previewImagem={previewImagem}
+            onImagemUpload={handleImagemUpload}
+          />
 
-                  <div className="flex items-center justify-between p-4 border rounded-lg">
-                    <div className="flex items-center space-x-3">
-                      <div className="bg-green-100 p-2 rounded-full">
-                        <MessageSquare className="h-4 w-4 text-green-600" />
-                      </div>
-                      <div>
-                        <Label htmlFor="alerta-sms" className="font-medium">SMS</Label>
-                        <p className="text-sm text-gray-500">Receber notificações por SMS</p>
-                      </div>
-                    </div>
-                    <Switch
-                      id="alerta-sms"
-                      checked={alertaSms}
-                      onCheckedChange={setAlertaSms}
-                      disabled={!celularUsuario}
-                    />
-                  </div>
-
-                  <div className="flex items-center justify-between p-4 border rounded-lg">
-                    <div className="flex items-center space-x-3">
-                      <div className="bg-purple-100 p-2 rounded-full">
-                        <MessageSquare className="h-4 w-4 text-purple-600" />
-                      </div>
-                      <div>
-                        <Label htmlFor="alerta-whatsapp" className="font-medium">WhatsApp</Label>
-                        <p className="text-sm text-gray-500">Receber notificações via WhatsApp</p>
-                      </div>
-                    </div>
-                    <Switch
-                      id="alerta-whatsapp"
-                      checked={alertaWhatsApp}
-                      onCheckedChange={setAlertaWhatsApp}
-                      disabled={!celularUsuario || !temWhatsApp}
-                    />
-                  </div>
-                </div>
-
-                {(!emailUsuario || !celularUsuario) && (
-                  <div className="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
-                    <p className="text-sm text-yellow-800">
-                      💡 Configure seus dados de contato acima para habilitar as opções de notificação
-                    </p>
-                  </div>
-                )}
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Mensagem Padrão */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center space-x-2">
-                <MessageSquare className="h-5 w-5 text-blue-500" />
-                <span>Mensagem Padrão</span>
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div>
-                <Label htmlFor="mensagem">
-                  Mensagem que será enviada via WhatsApp
-                </Label>
-                <p className="text-sm text-gray-500 mb-2">
-                  Use [NOME] para personalizar com o nome do aniversariante
-                </p>
-                <Textarea
-                  id="mensagem"
-                  placeholder="Digite sua mensagem personalizada..."
-                  value={mensagemPadrao}
-                  onChange={(e) => setMensagemPadrao(e.target.value)}
-                  rows={4}
-                  className="resize-none"
-                />
-              </div>
-              
-              <div className="bg-blue-50 p-4 rounded-lg">
-                <h4 className="font-medium text-blue-900 mb-2">Preview da mensagem:</h4>
-                <p className="text-blue-800 italic">
-                  {mensagemPadrao.replace('[NOME]', 'João Silva')}
-                </p>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Imagem Padrão */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center space-x-2">
-                <ImageIcon className="h-5 w-5 text-green-500" />
-                <span>Imagem Padrão para Felicitações</span>
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div>
-                <Label htmlFor="imagem">
-                  Selecionar nova imagem
-                </Label>
-                <div className="mt-2">
-                  <div className="flex items-center space-x-4">
-                    <input
-                      id="imagem"
-                      type="file"
-                      accept="image/*"
-                      onChange={handleImagemUpload}
-                      className="hidden"
-                    />
-                    <Button 
-                      type="button"
-                      variant="outline"
-                      onClick={() => document.getElementById('imagem')?.click()}
-                      className="flex items-center space-x-2"
-                    >
-                      <Upload className="h-4 w-4" />
-                      <span>Escolher Imagem</span>
-                    </Button>
-                  </div>
-                </div>
-              </div>
-
-              {previewImagem && (
-                <div className="mt-4">
-                  <Label>Preview da imagem:</Label>
-                  <div className="mt-2 max-w-xs">
-                    <img 
-                      src={previewImagem} 
-                      alt="Preview da imagem de felicitação"
-                      className="w-full h-auto rounded-lg border border-gray-200 shadow-sm"
-                    />
-                  </div>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-
-          {/* Botão Salvar */}
           <Card>
             <CardContent className="pt-6">
               <Button 

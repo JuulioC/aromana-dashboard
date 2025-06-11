@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 
 export interface Usuario {
@@ -17,6 +16,8 @@ export interface Configuracoes {
   alertaSms: boolean;
   alertaWhatsApp: boolean;
   usuarios: Usuario[];
+  horarioEnvio: string;
+  envioAutomaticoAtivo: boolean;
 }
 
 // Configurações padrão
@@ -26,7 +27,9 @@ const configuracoesDefault: Configuracoes = {
   alertaEmail: true,
   alertaSms: false,
   alertaWhatsApp: true,
-  usuarios: []
+  usuarios: [],
+  horarioEnvio: "09:00",
+  envioAutomaticoAtivo: true
 };
 
 export const useConfiguracoes = () => {

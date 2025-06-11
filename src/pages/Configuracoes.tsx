@@ -11,6 +11,7 @@ import ConfiguracoesAlertas from '@/components/configuracoes/ConfiguracoesAlerta
 import ConfiguracoesMensagem from '@/components/configuracoes/ConfiguracoesMensagem';
 import ConfiguracoesImagem from '@/components/configuracoes/ConfiguracoesImagem';
 import ConfiguracoesGoogle from '@/components/configuracoes/ConfiguracoesGoogle';
+import ConfiguracoesEnvioAutomatico from '@/components/configuracoes/ConfiguracoesEnvioAutomatico';
 
 const Configuracoes = () => {
   const { 
@@ -29,6 +30,8 @@ const Configuracoes = () => {
   const [alertaEmail, setAlertaEmail] = useState(true);
   const [alertaSms, setAlertaSms] = useState(false);
   const [alertaWhatsApp, setAlertaWhatsApp] = useState(true);
+  const [horarioEnvio, setHorarioEnvio] = useState('09:00');
+  const [envioAutomaticoAtivo, setEnvioAutomaticoAtivo] = useState(true);
 
   useEffect(() => {
     if (configuracoes) {
@@ -38,6 +41,8 @@ const Configuracoes = () => {
       setAlertaEmail(configuracoes.alertaEmail ?? true);
       setAlertaSms(configuracoes.alertaSms ?? false);
       setAlertaWhatsApp(configuracoes.alertaWhatsApp ?? true);
+      setHorarioEnvio(configuracoes.horarioEnvio || '09:00');
+      setEnvioAutomaticoAtivo(configuracoes.envioAutomaticoAtivo ?? true);
     }
   }, [configuracoes]);
 
@@ -67,7 +72,9 @@ const Configuracoes = () => {
             urlImagem: novaUrlImagem,
             alertaEmail,
             alertaSms,
-            alertaWhatsApp
+            alertaWhatsApp,
+            horarioEnvio,
+            envioAutomaticoAtivo
           });
 
           toast({
@@ -82,7 +89,9 @@ const Configuracoes = () => {
           urlImagem,
           alertaEmail,
           alertaSms,
-          alertaWhatsApp
+          alertaWhatsApp,
+          horarioEnvio,
+          envioAutomaticoAtivo
         });
 
         toast({
@@ -110,9 +119,10 @@ const Configuracoes = () => {
 
       <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <Tabs defaultValue="usuarios" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-5">
+          <TabsList className="grid w-full grid-cols-6">
             <TabsTrigger value="usuarios">Usuários</TabsTrigger>
             <TabsTrigger value="google">Google</TabsTrigger>
+            <TabsTrigger value="envio">Envio Auto</TabsTrigger>
             <TabsTrigger value="alertas">Alertas</TabsTrigger>
             <TabsTrigger value="mensagem">Mensagem</TabsTrigger>
             <TabsTrigger value="imagem">Imagem</TabsTrigger>
@@ -129,6 +139,15 @@ const Configuracoes = () => {
 
           <TabsContent value="google">
             <ConfiguracoesGoogle />
+          </TabsContent>
+
+          <TabsContent value="envio">
+            <ConfiguracoesEnvioAutomatico
+              horarioEnvio={horarioEnvio}
+              setHorarioEnvio={setHorarioEnvio}
+              envioAutomaticoAtivo={envioAutomaticoAtivo}
+              setEnvioAutomaticoAtivo={setEnvioAutomaticoAtivo}
+            />
           </TabsContent>
 
           <TabsContent value="alertas">

@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { format, isToday, isSameDay, parseISO } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
-import { Calendar, Settings, MessageCircle, Users, Phone } from 'lucide-react';
+import { Calendar, Settings, MessageCircle, Users, Phone, Clock } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -12,12 +12,14 @@ import AniversarianteCard from '@/components/AniversarianteCard';
 import CalendarioWidget from '@/components/CalendarioWidget';
 import AlertaAniversariantes from '@/components/AlertaAniversariantes';
 import { toast } from '@/hooks/use-toast';
+import { useEnvioAutomatico } from '@/hooks/useEnvioAutomatico';
 
 const Dashboard = () => {
   const [dataSelecionada, setDataSelecionada] = useState<Date>(new Date());
   const { aniversariantes, isLoading } = useAniversariantes();
   const { configuracoes } = useConfiguracoes();
   const { alertaDismissed, dismissAlert } = useAlertaAniversariantes();
+  const { ultimoEnvio } = useEnvioAutomatico();
 
   const aniversariantesFiltrados = useMemo(() => {
     if (!aniversariantes) return [];
@@ -105,6 +107,27 @@ const Dashboard = () => {
       </header>
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Alerta de Envio Automático */}
+        {configuracoes?.envioAutomaticoAtivo && (
+          <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg">
+            <div className="flex items-center space-x-2">
+              <div className="bg-green-100 p-1 rounded-full">
+                <Clock className="h-4 w-4 text-green-600" />
+              </div>
+              <div>
+                <p className="text-sm text-green-800 font-medium">
+                  Envio automático ativo às {configuracoes.horarioEnvio}
+                </p>
+                {ultimoEnvio && (
+                  <p className="text-xs text-green-600">
+                    Último envio: {new Date(ultimoEnvio).toLocaleDateString('pt-BR')}
+                  </p>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Alerta de Aniversariantes */}
         <AlertaAniversariantes
           aniversariantes={aniversariantesHoje}
@@ -158,23 +181,18 @@ const Dashboard = () => {
           {/* Lista de Aniversariantes */}
           <div className="lg:col-span-2">
             <Card>
-              <CardHeader className="flex flex-row items-center justify-between">
+              <CardHeader>
                 <CardTitle className="flex items-center space-x-2">
                   <Users className="h-5 w-5 text-blue-500" />
                   <span>
                     {isDataHoje ? 'Aniversariantes de Hoje' : `Aniversariantes - ${format(dataSelecionada, "dd/MM", { locale: ptBR })}`}
                   </span>
+                  {isDataHoje && aniversariantesHoje.length > 0 && configuracoes?.envioAutomaticoAtivo && (
+                    <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full">
+                      Envio automático ativo
+                    </span>
+                  )}
                 </CardTitle>
-                
-                {aniversariantesHoje.length > 0 && isDataHoje && (
-                  <Button 
-                    onClick={enviarMensagemParaTodos}
-                    className="bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white"
-                  >
-                    <MessageCircle className="h-4 w-4 mr-2" />
-                    Enviar para Todos ({aniversariantesHoje.length})
-                  </Button>
-                )}
               </CardHeader>
               
               <CardContent>
@@ -221,3 +239,5 @@ const Dashboard = () => {
 };
 
 export default Dashboard;
+
+}

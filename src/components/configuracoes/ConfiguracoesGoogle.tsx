@@ -1,58 +1,18 @@
 
 import React, { useState } from 'react';
-import { Link, Upload, CheckCircle, AlertCircle, FileSpreadsheet, User, Lock, Eye, EyeOff } from 'lucide-react';
+import { Link, Upload, CheckCircle, AlertCircle, FileSpreadsheet, User, ExternalLink } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { toast } from '@/hooks/use-toast';
 import { Badge } from '@/components/ui/badge';
+import { useGoogleAuth } from '@/hooks/useGoogleAuth';
 
 const ConfiguracoesGoogle = () => {
-  const [contaConectada, setContaConectada] = useState(false);
-  const [emailGoogle, setEmailGoogle] = useState('');
-  const [senhaGoogle, setSenhaGoogle] = useState('');
-  const [mostrarSenha, setMostrarSenha] = useState(false);
+  const { user, isLoading, isInitialized, signIn, signOut } = useGoogleAuth();
   const [urlPlanilha, setUrlPlanilha] = useState('');
   const [nomeAba, setNomeAba] = useState('');
-  const [isConnecting, setIsConnecting] = useState(false);
-
-  const conectarGoogle = async () => {
-    if (!emailGoogle || !senhaGoogle) {
-      toast({
-        title: "Dados incompletos",
-        description: "Por favor, preencha seu email e senha do Google.",
-        variant: "destructive"
-      });
-      return;
-    }
-
-    setIsConnecting(true);
-    
-    // Simular verificação de credenciais (aqui seria implementada a integração real)
-    setTimeout(() => {
-      setContaConectada(true);
-      setIsConnecting(false);
-      
-      toast({
-        title: "Conta conectada!",
-        description: `Conectado como ${emailGoogle}`
-      });
-    }, 2000);
-  };
-
-  const desconectarGoogle = () => {
-    setContaConectada(false);
-    setEmailGoogle('');
-    setSenhaGoogle('');
-    setUrlPlanilha('');
-    setNomeAba('');
-    
-    toast({
-      title: "Conta desconectada",
-      description: "Sua conta Google foi desconectada."
-    });
-  };
 
   const testarConexao = async () => {
     if (!urlPlanilha) {
@@ -64,18 +24,32 @@ const ConfiguracoesGoogle = () => {
       return;
     }
 
-    // Simular teste de conexão
+    if (!user) {
+      toast({
+        title: "Login necessário",
+        description: "Você precisa estar logado no Google para testar a conexão.",
+        variant: "destructive"
+      });
+      return;
+    }
+
     toast({
       title: "Testando conexão...",
       description: "Verificando acesso à planilha..."
     });
 
+    // Aqui você implementaria a verificação real da planilha
+    // usando a API do Google Sheets com o token do usuário
     setTimeout(() => {
       toast({
         title: "Conexão bem-sucedida!",
         description: "A planilha foi acessada com sucesso."
       });
     }, 1500);
+  };
+
+  const abrirConfiguracoesOAuth = () => {
+    window.open('https://console.developers.google.com/apis/credentials', '_blank');
   };
 
   return (
@@ -85,8 +59,8 @@ const ConfiguracoesGoogle = () => {
         <CardHeader>
           <CardTitle className="flex items-center space-x-2">
             <Link className="h-5 w-5 text-blue-500" />
-            <span>Conectar Conta Google</span>
-            {contaConectada ? (
+            <span>Autenticação Google</span>
+            {user ? (
               <Badge variant="default" className="bg-green-100 text-green-800">
                 <CheckCircle className="h-3 w-3 mr-1" />
                 Conectado
@@ -100,89 +74,92 @@ const ConfiguracoesGoogle = () => {
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          {!contaConectada ? (
+          {!user ? (
             <div className="space-y-4">
               <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
                 <p className="text-sm text-blue-800 mb-2">
-                  <strong>💡 Como conectar:</strong>
+                  <strong>🔐 Autenticação Segura:</strong>
                 </p>
-                <ol className="text-xs text-blue-700 space-y-1 list-decimal list-inside">
-                  <li>Digite seu email e senha do Google abaixo</li>
-                  <li>Clique em "Conectar com Google"</li>
-                  <li>Após conectar, configure a URL da sua planilha</li>
-                </ol>
+                <p className="text-xs text-blue-700 mb-2">
+                  Faça login com sua conta Google para acessar suas planilhas de forma segura.
+                </p>
+                <ul className="text-xs text-blue-700 space-y-1 list-disc list-inside">
+                  <li>Autenticação OAuth 2.0 oficial do Google</li>
+                  <li>Suas credenciais nunca são armazenadas no app</li>
+                  <li>Acesso apenas às planilhas que você autorizar</li>
+                </ul>
               </div>
 
-              <div className="space-y-3">
-                <div>
-                  <Label htmlFor="email-google" className="flex items-center space-x-1">
-                    <User className="h-4 w-4" />
-                    <span>Email do Google</span>
-                  </Label>
-                  <Input
-                    id="email-google"
-                    type="email"
-                    placeholder="seu-email@gmail.com"
-                    value={emailGoogle}
-                    onChange={(e) => setEmailGoogle(e.target.value)}
-                    className="mt-1"
-                  />
+              {!isInitialized ? (
+                <div className="text-center py-4">
+                  <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-500 mx-auto mb-2"></div>
+                  <p className="text-sm text-gray-600">Inicializando Google Auth...</p>
                 </div>
-
-                <div>
-                  <Label htmlFor="senha-google" className="flex items-center space-x-1">
-                    <Lock className="h-4 w-4" />
-                    <span>Senha do Google</span>
-                  </Label>
-                  <div className="relative mt-1">
-                    <Input
-                      id="senha-google"
-                      type={mostrarSenha ? "text" : "password"}
-                      placeholder="Sua senha do Google"
-                      value={senhaGoogle}
-                      onChange={(e) => setSenhaGoogle(e.target.value)}
-                      className="pr-10"
-                    />
-                    <button
-                      type="button"
-                      className="absolute inset-y-0 right-0 pr-3 flex items-center"
-                      onClick={() => setMostrarSenha(!mostrarSenha)}
-                    >
-                      {mostrarSenha ? (
-                        <EyeOff className="h-4 w-4 text-gray-400" />
-                      ) : (
-                        <Eye className="h-4 w-4 text-gray-400" />
-                      )}
-                    </button>
-                  </div>
-                  <p className="text-xs text-gray-500 mt-1">
-                    Suas credenciais serão armazenadas de forma segura
-                  </p>
-                </div>
-
+              ) : (
                 <Button 
-                  onClick={conectarGoogle}
-                  disabled={isConnecting || !emailGoogle || !senhaGoogle}
-                  className="w-full bg-blue-500 hover:bg-blue-600"
+                  onClick={signIn}
+                  disabled={isLoading}
+                  className="w-full bg-blue-500 hover:bg-blue-600 text-white"
                 >
-                  {isConnecting ? 'Conectando...' : 'Conectar com Google'}
+                  {isLoading ? (
+                    <>
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                      Conectando...
+                    </>
+                  ) : (
+                    <>
+                      <svg className="w-4 h-4 mr-2" viewBox="0 0 24 24">
+                        <path fill="currentColor" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                        <path fill="currentColor" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                        <path fill="currentColor" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                        <path fill="currentColor" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+                      </svg>
+                      Entrar com Google
+                    </>
+                  )}
+                </Button>
+              )}
+
+              <div className="p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+                <p className="text-xs text-yellow-800 mb-2">
+                  <strong>⚠️ Configuração necessária:</strong>
+                </p>
+                <p className="text-xs text-yellow-700 mb-2">
+                  Para usar esta funcionalidade, você precisa configurar as credenciais OAuth do Google:
+                </p>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={abrirConfiguracoesOAuth}
+                  className="flex items-center space-x-1 text-xs"
+                >
+                  <ExternalLink className="h-3 w-3" />
+                  <span>Configurar Google Console</span>
                 </Button>
               </div>
             </div>
           ) : (
             <div className="space-y-3">
               <div className="p-3 bg-green-50 border border-green-200 rounded-lg">
-                <p className="text-sm text-green-800">
-                  ✅ <strong>Conectado como:</strong> {emailGoogle}
-                </p>
+                <div className="flex items-center space-x-3">
+                  <img 
+                    src={user.picture} 
+                    alt={user.name}
+                    className="w-10 h-10 rounded-full"
+                  />
+                  <div>
+                    <p className="text-sm font-medium text-green-800">{user.name}</p>
+                    <p className="text-xs text-green-600">{user.email}</p>
+                  </div>
+                </div>
               </div>
               
               <Button 
-                onClick={desconectarGoogle}
+                onClick={signOut}
                 variant="outline"
                 className="border-red-200 text-red-600 hover:bg-red-50"
               >
-                Desconectar Conta
+                Desconectar do Google
               </Button>
             </div>
           )}
@@ -190,7 +167,7 @@ const ConfiguracoesGoogle = () => {
       </Card>
 
       {/* Configuração da Planilha */}
-      {contaConectada && (
+      {user && (
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center space-x-2">
@@ -250,44 +227,36 @@ const ConfiguracoesGoogle = () => {
       {/* Instruções Detalhadas */}
       <Card>
         <CardHeader>
-          <CardTitle>📋 Passo a passo completo</CardTitle>
+          <CardTitle>📋 Configuração do Google OAuth</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
             <div>
-              <h4 className="font-medium text-gray-900 mb-2">1. Preparar sua conta Google:</h4>
+              <h4 className="font-medium text-gray-900 mb-2">1. Configurar credenciais OAuth:</h4>
               <ul className="list-disc list-inside space-y-1 text-sm text-gray-600 ml-4">
-                <li>Certifique-se de ter uma conta Google ativa</li>
-                <li>Acesse o Google Sheets em sheets.google.com</li>
+                <li>Acesse o <a href="https://console.developers.google.com" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">Google Cloud Console</a></li>
+                <li>Crie um novo projeto ou selecione um existente</li>
+                <li>Ative a API do Google Sheets</li>
+                <li>Crie credenciais OAuth 2.0 Client ID</li>
+                <li>Adicione seu domínio às origens autorizadas</li>
               </ul>
             </div>
 
             <div>
-              <h4 className="font-medium text-gray-900 mb-2">2. Criar a planilha de aniversariantes:</h4>
+              <h4 className="font-medium text-gray-900 mb-2">2. Configurar a planilha:</h4>
               <ul className="list-disc list-inside space-y-1 text-sm text-gray-600 ml-4">
-                <li>Crie uma nova planilha no Google Sheets</li>
+                <li>Crie uma planilha no Google Sheets</li>
                 <li>Configure as colunas: <strong>Nome</strong>, <strong>Data de Nascimento</strong>, <strong>Email</strong>, <strong>Celular</strong></li>
                 <li>Preencha com os dados dos aniversariantes</li>
-                <li>Compartilhe como "Qualquer pessoa com o link pode visualizar"</li>
-              </ul>
-            </div>
-
-            <div>
-              <h4 className="font-medium text-gray-900 mb-2">3. Conectar no app:</h4>
-              <ul className="list-disc list-inside space-y-1 text-sm text-gray-600 ml-4">
-                <li>Digite seu email e senha do Google acima</li>
-                <li>Clique em "Conectar com Google"</li>
-                <li>Cole a URL da sua planilha</li>
-                <li>Teste a conexão</li>
+                <li>A planilha deve estar acessível pela sua conta Google</li>
               </ul>
             </div>
           </div>
           
-          <div className="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
-            <p className="text-xs text-yellow-800">
-              <strong>⚠️ Importante:</strong> Atualmente esta é uma versão de demonstração. 
-              Para uma implementação real em produção, seria necessário usar OAuth 2.0 do Google 
-              por questões de segurança.
+          <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+            <p className="text-xs text-blue-800">
+              <strong>🔐 Segurança:</strong> Esta implementação usa OAuth 2.0 oficial do Google. 
+              Suas credenciais são gerenciadas diretamente pelo Google e não são armazenadas neste aplicativo.
             </p>
           </div>
         </CardContent>

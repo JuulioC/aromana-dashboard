@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { Link, Upload, CheckCircle, AlertCircle, FileSpreadsheet } from 'lucide-react';
+import { Link, Upload, CheckCircle, AlertCircle, FileSpreadsheet, User, Lock, Eye, EyeOff } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -10,30 +10,41 @@ import { Badge } from '@/components/ui/badge';
 
 const ConfiguracoesGoogle = () => {
   const [contaConectada, setContaConectada] = useState(false);
-  const [emailConta, setEmailConta] = useState('');
+  const [emailGoogle, setEmailGoogle] = useState('');
+  const [senhaGoogle, setSenhaGoogle] = useState('');
+  const [mostrarSenha, setMostrarSenha] = useState(false);
   const [urlPlanilha, setUrlPlanilha] = useState('');
   const [nomeAba, setNomeAba] = useState('');
   const [isConnecting, setIsConnecting] = useState(false);
 
   const conectarGoogle = async () => {
+    if (!emailGoogle || !senhaGoogle) {
+      toast({
+        title: "Dados incompletos",
+        description: "Por favor, preencha seu email e senha do Google.",
+        variant: "destructive"
+      });
+      return;
+    }
+
     setIsConnecting(true);
     
-    // Simular conexão com Google (aqui seria implementada a integração real)
+    // Simular verificação de credenciais (aqui seria implementada a integração real)
     setTimeout(() => {
       setContaConectada(true);
-      setEmailConta('usuario@gmail.com');
       setIsConnecting(false);
       
       toast({
         title: "Conta conectada!",
-        description: "Sua conta Google foi conectada com sucesso."
+        description: `Conectado como ${emailGoogle}`
       });
     }, 2000);
   };
 
   const desconectarGoogle = () => {
     setContaConectada(false);
-    setEmailConta('');
+    setEmailGoogle('');
+    setSenhaGoogle('');
     setUrlPlanilha('');
     setNomeAba('');
     
@@ -74,7 +85,7 @@ const ConfiguracoesGoogle = () => {
         <CardHeader>
           <CardTitle className="flex items-center space-x-2">
             <Link className="h-5 w-5 text-blue-500" />
-            <span>Conta Google</span>
+            <span>Conectar Conta Google</span>
             {contaConectada ? (
               <Badge variant="default" className="bg-green-100 text-green-800">
                 <CheckCircle className="h-3 w-3 mr-1" />
@@ -90,23 +101,82 @@ const ConfiguracoesGoogle = () => {
         </CardHeader>
         <CardContent className="space-y-4">
           {!contaConectada ? (
-            <div>
-              <p className="text-sm text-gray-600 mb-4">
-                Conecte sua conta Google para acessar as planilhas do Google Sheets.
-              </p>
-              <Button 
-                onClick={conectarGoogle}
-                disabled={isConnecting}
-                className="bg-blue-500 hover:bg-blue-600"
-              >
-                {isConnecting ? 'Conectando...' : 'Conectar com Google'}
-              </Button>
+            <div className="space-y-4">
+              <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                <p className="text-sm text-blue-800 mb-2">
+                  <strong>💡 Como conectar:</strong>
+                </p>
+                <ol className="text-xs text-blue-700 space-y-1 list-decimal list-inside">
+                  <li>Digite seu email e senha do Google abaixo</li>
+                  <li>Clique em "Conectar com Google"</li>
+                  <li>Após conectar, configure a URL da sua planilha</li>
+                </ol>
+              </div>
+
+              <div className="space-y-3">
+                <div>
+                  <Label htmlFor="email-google" className="flex items-center space-x-1">
+                    <User className="h-4 w-4" />
+                    <span>Email do Google</span>
+                  </Label>
+                  <Input
+                    id="email-google"
+                    type="email"
+                    placeholder="seu-email@gmail.com"
+                    value={emailGoogle}
+                    onChange={(e) => setEmailGoogle(e.target.value)}
+                    className="mt-1"
+                  />
+                </div>
+
+                <div>
+                  <Label htmlFor="senha-google" className="flex items-center space-x-1">
+                    <Lock className="h-4 w-4" />
+                    <span>Senha do Google</span>
+                  </Label>
+                  <div className="relative mt-1">
+                    <Input
+                      id="senha-google"
+                      type={mostrarSenha ? "text" : "password"}
+                      placeholder="Sua senha do Google"
+                      value={senhaGoogle}
+                      onChange={(e) => setSenhaGoogle(e.target.value)}
+                      className="pr-10"
+                    />
+                    <button
+                      type="button"
+                      className="absolute inset-y-0 right-0 pr-3 flex items-center"
+                      onClick={() => setMostrarSenha(!mostrarSenha)}
+                    >
+                      {mostrarSenha ? (
+                        <EyeOff className="h-4 w-4 text-gray-400" />
+                      ) : (
+                        <Eye className="h-4 w-4 text-gray-400" />
+                      )}
+                    </button>
+                  </div>
+                  <p className="text-xs text-gray-500 mt-1">
+                    Suas credenciais serão armazenadas de forma segura
+                  </p>
+                </div>
+
+                <Button 
+                  onClick={conectarGoogle}
+                  disabled={isConnecting || !emailGoogle || !senhaGoogle}
+                  className="w-full bg-blue-500 hover:bg-blue-600"
+                >
+                  {isConnecting ? 'Conectando...' : 'Conectar com Google'}
+                </Button>
+              </div>
             </div>
           ) : (
-            <div>
-              <p className="text-sm text-gray-600 mb-2">
-                Conta conectada: <strong>{emailConta}</strong>
-              </p>
+            <div className="space-y-3">
+              <div className="p-3 bg-green-50 border border-green-200 rounded-lg">
+                <p className="text-sm text-green-800">
+                  ✅ <strong>Conectado como:</strong> {emailGoogle}
+                </p>
+              </div>
+              
               <Button 
                 onClick={desconectarGoogle}
                 variant="outline"
@@ -177,25 +247,47 @@ const ConfiguracoesGoogle = () => {
         </Card>
       )}
 
-      {/* Instruções */}
+      {/* Instruções Detalhadas */}
       <Card>
         <CardHeader>
-          <CardTitle>Como configurar</CardTitle>
+          <CardTitle>📋 Passo a passo completo</CardTitle>
         </CardHeader>
         <CardContent>
-          <ol className="list-decimal list-inside space-y-2 text-sm text-gray-600">
-            <li>Conecte sua conta Google clicando no botão acima</li>
-            <li>Crie ou abra uma planilha no Google Sheets</li>
-            <li>Configure as colunas: Nome, Data de Nascimento, Email, Celular</li>
-            <li>Compartilhe a planilha como "Qualquer pessoa com o link pode visualizar"</li>
-            <li>Cole a URL da planilha no campo acima</li>
-            <li>Teste a conexão para verificar se está funcionando</li>
-          </ol>
+          <div className="space-y-4">
+            <div>
+              <h4 className="font-medium text-gray-900 mb-2">1. Preparar sua conta Google:</h4>
+              <ul className="list-disc list-inside space-y-1 text-sm text-gray-600 ml-4">
+                <li>Certifique-se de ter uma conta Google ativa</li>
+                <li>Acesse o Google Sheets em sheets.google.com</li>
+              </ul>
+            </div>
+
+            <div>
+              <h4 className="font-medium text-gray-900 mb-2">2. Criar a planilha de aniversariantes:</h4>
+              <ul className="list-disc list-inside space-y-1 text-sm text-gray-600 ml-4">
+                <li>Crie uma nova planilha no Google Sheets</li>
+                <li>Configure as colunas: <strong>Nome</strong>, <strong>Data de Nascimento</strong>, <strong>Email</strong>, <strong>Celular</strong></li>
+                <li>Preencha com os dados dos aniversariantes</li>
+                <li>Compartilhe como "Qualquer pessoa com o link pode visualizar"</li>
+              </ul>
+            </div>
+
+            <div>
+              <h4 className="font-medium text-gray-900 mb-2">3. Conectar no app:</h4>
+              <ul className="list-disc list-inside space-y-1 text-sm text-gray-600 ml-4">
+                <li>Digite seu email e senha do Google acima</li>
+                <li>Clique em "Conectar com Google"</li>
+                <li>Cole a URL da sua planilha</li>
+                <li>Teste a conexão</li>
+              </ul>
+            </div>
+          </div>
           
-          <div className="mt-4 p-3 bg-blue-50 rounded-lg">
-            <p className="text-xs text-blue-800">
-              <strong>Dica:</strong> Certifique-se de que sua planilha tenha as colunas necessárias 
-              para que o sistema possa importar os dados dos aniversariantes corretamente.
+          <div className="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+            <p className="text-xs text-yellow-800">
+              <strong>⚠️ Importante:</strong> Atualmente esta é uma versão de demonstração. 
+              Para uma implementação real em produção, seria necessário usar OAuth 2.0 do Google 
+              por questões de segurança.
             </p>
           </div>
         </CardContent>

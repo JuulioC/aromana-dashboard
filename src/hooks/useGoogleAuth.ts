@@ -23,7 +23,8 @@ export const useGoogleAuth = () => {
   const [isLoading, setIsLoading] = useState(false);
 
   // Configurações do OAuth (você precisará substituir pelo seu Client ID)
-  const CLIENT_ID = 'SEU_GOOGLE_CLIENT_ID_AQUI.apps.googleusercontent.com';
+  // const CLIENT_ID = 'SEU_GOOGLE_CLIENT_ID_AQUI.apps.googleusercontent.com';
+  const CLIENT_ID = '239108982428-27grjk11aofudjbaask8jkcb99erc1gu.apps.googleusercontent.com';
   const SCOPES = 'https://www.googleapis.com/auth/spreadsheets.readonly https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email';
 
   useEffect(() => {
